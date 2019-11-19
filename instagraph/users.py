@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Iterable
 
-from ext.pgsql import Pgsql
+from .pgsql import Pgsql
 
 
 class Users(ABC):

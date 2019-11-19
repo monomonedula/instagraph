@@ -1,7 +1,7 @@
 from typing import Iterable
 
-from ext.pgsql import Pgsql
-from ext.users import Users, User, PgUser, AlreadyFollowing, Followers, Following, UserInfo
+from .pgsql import Pgsql
+from .users import Users, User, PgUser, AlreadyFollowing, Followers, Following, UserInfo
 
 
 class TimelinePgUsers(Users):

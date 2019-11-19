@@ -1,7 +1,7 @@
 from datetime import date
 
-from ext.users import PgUsers
-from ext.timeline import TimelinePgUsers
+from instagraph.users import PgUsers
+from instagraph.timeline import TimelinePgUsers
 
 
 def test_timeline_followers(pgsql):

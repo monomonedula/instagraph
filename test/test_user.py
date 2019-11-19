@@ -1,4 +1,4 @@
-from ext.users import PgUsers
+from instagraph.users import PgUsers
 
 
 def test_user(pgsql):
@@ -13,8 +13,8 @@ def test_user(pgsql):
     assert following.user_id() == 12345
     assert following.number() is None
     assert list(following.users()) == []
-    user.schedule_follow(123, ["kids"])
-    user.add_tag("kids")
+    user.schedule_follow(PgUsers(pgsql).user(123), ["kids"])
+    user.info().add_tag("kids")
     pgsql.exec("SELECT * FROM follow_schedule")
 
 
