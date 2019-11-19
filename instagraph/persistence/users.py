@@ -31,6 +31,10 @@ class User(ABC):
     def info(self) -> "UserInfo":
         pass
 
+    @abstractmethod
+    def media(self) -> "UserMedia":
+        pass
+
 
 class Followers(ABC):
     @abstractmethod
@@ -103,6 +107,16 @@ class UserInfo(ABC):
         pass
 
 
+class UserMedia(ABC):
+    @abstractmethod
+    def post(self, post_id, url) -> "Post":
+        pass
+
+
+class Post(ABC):
+    pass
+
+
 class AlreadyFollowing(Exception):
     pass
 
@@ -145,6 +159,9 @@ class FollowSchedule:
 
 
 class PgUser(User):
+    def media(self) -> "UserMedia":
+        pass
+
     def __init__(self, pgsql, id_):
         self._pgsql = pgsql
         self._id = id_

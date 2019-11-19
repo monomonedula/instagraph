@@ -54,3 +54,18 @@ class Actions:
             "(NOW()::date, %s, %s)",
             ("media_info_saved", user_id),
         )
+
+    def mark_posts_info_saved(self, user_id):
+        self._pgsql.exec(
+            "INSERT INTO actions (date_taken, action_type, user_id) VALUES "
+            "(NOW()::date, %s, %s)",
+            ("posts_info_saved", user_id)
+        )
+
+    def posts_info_saved(self, user_id):
+        return bool(
+            self._pgsql.exec(
+                "SELECT date_taken FROM actions WHERE user_id = %s AND action_type = 'posts_info_saved'",
+                (user_id,),
+            )
+        )
