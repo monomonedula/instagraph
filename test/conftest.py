@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from instagraph.pgsql import Pgsql
+from instagraph.persistence.pgsql import Pgsql
 
 
 @pytest.fixture()

@@ -1,6 +1,6 @@
 from networkx import DiGraph
 
-from ..users import PgUser
+from instagraph.persistence.users import PgUser
 
 
 class Graph:
