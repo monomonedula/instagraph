@@ -1,6 +1,6 @@
 from networkx import DiGraph
 
-from ext.users import PgUser
+from ..users import PgUser
 
 
 class Graph:
