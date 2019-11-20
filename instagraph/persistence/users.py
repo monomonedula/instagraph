@@ -148,11 +148,11 @@ class Locations(ABC):
 
 class Location(ABC):
     @abstractmethod
-    def update_lat_lng(self, lat, lng) -> None:
+    def update_lat_lng(self, lat: float, lng: float) -> None:
         pass
 
     @abstractmethod
-    def update_name(self, name) -> None:
+    def update_name(self, name: str) -> None:
         pass
 
     @abstractmethod
@@ -203,12 +203,10 @@ class FollowSchedule:
             "      )",
             (follower, followed),
         )
+    # TODO: add follow rejection mechanism
 
 
 class PgUser(User):
-    def media(self) -> "UserMedia":
-        pass
-
     def __init__(self, pgsql, id_):
         self._pgsql = pgsql
         self._id = id_
@@ -233,6 +231,9 @@ class PgUser(User):
 
     def info(self) -> "UserInfo":
         return PgUserInfo(self._pgsql, self.id())
+
+    def media(self) -> "UserMedia":
+        return PgUserMedia(self._pgsql, self.id())
 
 
 class PgUserFollowing(Following):
@@ -390,5 +391,65 @@ class PgUserInfo(UserInfo):
             (tag, tag, self.user_id()),
         )
 
+
+class PgLocations(Locations):
+    # TODO: implement this
+    def location(self, pk):
+        pass
+
+
+class PgLocation(Location):
+    #TODO: implement this
+    def update_lat_lng(self, lat: float, lng: float) -> None:
+        pass
+
+    def update_name(self, name: str) -> None:
+        pass
+
+    def name(self) -> str:
+        pass
+
+    def lat_lng(self) -> Tuple[float, float]:
+        pass
+
+
+class PgUserMedia(UserMedia):
+    def __init__(self, pgsql, user_id):
+        self._pgsql = pgsql
+        self._uid = user_id
+
+    def post(self, post_id, url=None) -> "Post":
+        self._pgsql.exec(
+            "INSERT INTO posts (user_id, id, url) "
+            "VALUES (%s) ON CONFLICT DO NOTHING",
+            [self._uid, post_id, url]
+        )
+        return PgPost(self._pgsql, self._uid, post_id)
+
+
+class PgPost(Post):
+    # TODO: implement this
+    def __init__(self, pgsql: Pgsql, user_id, post_id: int):
+        self._pgsql = pgsql
+        self._id = post_id
+        self._uid = user_id
+
+    def update_caption(self, caption_text: str):
+        pass
+
+    def update_location(self, location):
+        pass
+
+    def update_like_count(self, count):
+        pass
+
+    def update_user_tags(self, users):
+        pass
+
+    def update_taken_at(self, dt: datetime):
+        pass
+
+    def update_likers(self, users):
+        pass
 
 # TODO: implement PgLocations and PgLocation
