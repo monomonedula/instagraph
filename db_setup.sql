@@ -24,10 +24,10 @@ TABLESPACE pg_default;
 CREATE TABLE social.posts
 (
     user_id bigint NOT NULL,
-    id character varying(100) NOT NULL,
+    id bigint NOT NULL,
     description text COLLATE pg_catalog."default",
     nlikes integer,
-    location character varying(255) COLLATE pg_catalog."default",
+    location bigint COLLATE pg_catalog."default",
     CONSTRAINT posts_pkey PRIMARY KEY (user_id, id),
     CONSTRAINT posts_user_id_fkey FOREIGN KEY (user_id)
         REFERENCES social.users (id) MATCH SIMPLE
@@ -43,7 +43,7 @@ TABLESPACE pg_default;
 CREATE TABLE social.posts_media
 (
     posts_user_id bigint NOT NULL,
-    posts_post_id character varying(100) NOT NULL,
+    posts_post_id bigint NOT NULL,
     id character varying(100) NOT NULL,
     file_path character varying(255) COLLATE pg_catalog."default",
     file_type character varying(255) COLLATE pg_catalog."default",
@@ -62,7 +62,7 @@ TABLESPACE pg_default;
 CREATE TABLE social.likes
 (
     user_id bigint NOT NULL,
-    post_id character varying(100) NOT NULL,
+    post_id bigint NOT NULL,
     post_user_id bigint NOT NULL,
     CONSTRAINT likes_pkey PRIMARY KEY (user_id, post_id, post_user_id),
     CONSTRAINT likes_post_id_fkey FOREIGN KEY (post_id, post_user_id)
@@ -142,7 +142,7 @@ TABLESPACE pg_default;
 CREATE TABLE social.likes_timeline
 (
     user_id bigint NOT NULL,
-    post_id character varying(100) NOT NULL,
+    post_id bigint  NOT NULL,
     post_user_id bigint NOT NULL,
     CONSTRAINT likes_timeline_pkey PRIMARY KEY (user_id, post_id, post_user_id),
     CONSTRAINT likes_post_id_fkey FOREIGN KEY (post_id, post_user_id)
