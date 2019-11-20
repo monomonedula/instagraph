@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 from abc_delegation import delegation_metaclass
 
@@ -156,16 +157,15 @@ class SimpleInstaUser(InstaUser):
             location.update_name(info["location"]["name"])
 
             post.update_location(location)
+            post.update_taken_at(datetime.fromtimestamp(info["taken_at"]))
             post.update_like_count(info[0]["like_count"])
-            post.update_user_tags()
-
-            # list with 1 element. Intersting dict paths:
-            # "taken_at", "usertags/in/pk", "caption/text", "location/pk" "location/name",
-            # "location/lng" "location/lat"
-            # "code" - url
-            # "like_count"
-            likers = self._bot.get_media_likers(m_id)   # ids
-        # TODO: implement this
+            post.update_user_tags(
+                [self._pg_users.user(tag["pk"]) for tag in info["usertags"]["in"]]
+            )
+            post.update_likers(
+                [self._pg_users.user(int(_id)) for _id in self._bot.get_media_likers(m_id)]
+            )
+        # TODO: split this method into multiple classes
 
 
 
