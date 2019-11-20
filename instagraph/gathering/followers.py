@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from abc_delegation import delegation_metaclass
 
 from ..persistence.actions import Actions
-from ..persistence.users import User
+from ..persistence.users import User, Locations, Users
 
 
 class Scan:
@@ -100,10 +100,11 @@ class RecursiveInstaUser(InstaUser, metaclass=delegation_metaclass("_target")):
 
 
 class SimpleInstaUser(InstaUser):
-    def __init__(self, bot, pg_user: User, pg_users):
+    def __init__(self, bot, pg_user: User, pg_users: Users, pg_locations: Locations):
         self._bot = bot
         self._pg_user = pg_user
         self._pg_users = pg_users
+        self._pg_locations = pg_locations
         self._followers = None
         self._following = None
 
@@ -145,5 +146,27 @@ class SimpleInstaUser(InstaUser):
         )
 
     def save_posts_info(self):
-        self._pg_user.info()
+        media_ids = self._bot.get_last_user_medias(self._pg_user.id(), 5)
+        for m_id in media_ids:
+            info = self._bot.get_media_info(m_id)[0]
+            post = self._pg_user.media().post(info["pk"], info["code"])
+            post.update_caption(info["caption"]["text"])
+            location = self._pg_locations.location(info["location"]["pk"])
+            location.update_lat_lng(info["location"]["lat"], info["location"]["lng"])
+            location.update_name(info["location"]["name"])
+
+            post.update_location(location)
+            post.update_like_count(info[0]["like_count"])
+            post.update_user_tags()
+
+            # list with 1 element. Intersting dict paths:
+            # "taken_at", "usertags/in/pk", "caption/text", "location/pk" "location/name",
+            # "location/lng" "location/lat"
+            # "code" - url
+            # "like_count"
+            likers = self._bot.get_media_likers(m_id)   # ids
+        # TODO: implement this
+
+
+
 
