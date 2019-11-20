@@ -148,6 +148,10 @@ class Locations(ABC):
 
 class Location(ABC):
     @abstractmethod
+    def id(self):
+        pass
+
+    @abstractmethod
     def update_lat_lng(self, lat: float, lng: float) -> None:
         pass
 
@@ -400,6 +404,9 @@ class PgLocations(Locations):
 
 class PgLocation(Location):
     #TODO: implement this
+    def id(self):
+        pass
+
     def update_lat_lng(self, lat: float, lng: float) -> None:
         pass
 
@@ -428,28 +435,56 @@ class PgUserMedia(UserMedia):
 
 
 class PgPost(Post):
-    # TODO: implement this
     def __init__(self, pgsql: Pgsql, user_id, post_id: int):
         self._pgsql = pgsql
         self._id = post_id
         self._uid = user_id
 
     def update_caption(self, caption_text: str):
-        pass
+        self._pgsql.exec(
+            "UPDATE posts SET caption = %s WHERE user_id = %s AND id = %s",
+            (caption_text, self._uid, self._id)
+        )
 
     def update_location(self, location):
-        pass
+        self._pgsql.exec(
+            "UPDATE posts SET location = %s WHERE user_id = %s AND id = %s",
+            (location.id(), self._uid, self._id)
+        )
 
     def update_like_count(self, count):
-        pass
+        self._pgsql.exec(
+            "UPDATE posts SET nlikes = %s WHERE user_id = %s AND id = %s",
+            [count, self._uid, self._id]
+        )
 
     def update_user_tags(self, users):
-        pass
+        self._pgsql.exec(
+            "UPDATE posts SET user_tags = %s WHERE user_id = %s AND id = %s",
+            [[u.id() for u in users], self._uid, self._id]
+        )
 
     def update_taken_at(self, dt: datetime):
-        pass
+        self._pgsql.exec(
+            "UPDATE posts SET taken_at = %s WHERE user_id = %s AND id = %s",
+            [dt, self._uid, self._id]
+        )
 
     def update_likers(self, users):
-        pass
+        for u in users:
+            self._pgsql.exec(
+                "INSERT INTO likes (user_id, post_id, post_user_id)"
+                " VALUES (%s, %s, %s)"
+                " ON CONFLICT DO NOTHING",
+                [u.id(), self._id, self._uid]
+            )
+
+        self._pgsql.exec(
+            "UPDATE posts SET likes = %s WHERE user_id = %s AND id = %s",
+            [[u.id() for u in users], self._uid, self._id]
+        )
+
 
 # TODO: implement PgLocations and PgLocation
+# TODO: adapt the posts table to the usertags field
+
