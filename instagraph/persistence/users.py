@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Iterable
+from datetime import datetime
+from typing import Iterable, Tuple
 
 from .pgsql import Pgsql
 
@@ -114,7 +115,53 @@ class UserMedia(ABC):
 
 
 class Post(ABC):
-    pass
+    @abstractmethod
+    def update_caption(self, caption_text: str):
+        pass
+
+    @abstractmethod
+    def update_location(self, location):
+        pass
+
+    @abstractmethod
+    def update_like_count(self, count):
+        pass
+
+    @abstractmethod
+    def update_user_tags(self, users):
+        pass
+
+    @abstractmethod
+    def update_taken_at(self, dt: datetime):
+        pass
+
+    @abstractmethod
+    def update_likers(self, users):
+        pass
+
+
+class Locations(ABC):
+    @abstractmethod
+    def location(self, pk):
+        pass
+
+
+class Location(ABC):
+    @abstractmethod
+    def update_lat_lng(self, lat, lng) -> None:
+        pass
+
+    @abstractmethod
+    def update_name(self, name) -> None:
+        pass
+
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @abstractmethod
+    def lat_lng(self) -> Tuple[float, float]:
+        pass
 
 
 class AlreadyFollowing(Exception):
@@ -342,3 +389,6 @@ class PgUserInfo(UserInfo):
             "WHERE id = %s",
             (tag, tag, self.user_id()),
         )
+
+
+# TODO: implement PgLocations and PgLocation
