@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
+from functools import lru_cache
 
 from abc_delegation import delegation_metaclass
 
 from ..persistence.actions import Actions
-from ..persistence.users import User, Locations, Users
+from ..persistence.users import User, Locations, Users, Post
 
 
 class Scan:
@@ -115,7 +116,7 @@ class SimpleInstaUser(InstaUser):
     def retrieve_followers(self):
         if self._followers is None:
             self._followers = tuple(
-                SimpleInstaUser(self._bot, self._pg_users.user(i), self._pg_users)
+                SimpleInstaUser(self._bot, self._pg_users.user(i), self._pg_users, self._pg_locations)
                 for i in self._bot.get_user_followers(self.id(), nfollows=20000)
             )
         return self._followers
@@ -123,7 +124,7 @@ class SimpleInstaUser(InstaUser):
     def retrieve_following(self):
         if self._following is None:
             self._following = tuple(
-                SimpleInstaUser(self._bot, self._pg_users.user(i), self._pg_users)
+                SimpleInstaUser(self._bot, self._pg_users.user(i), self._pg_users, self._pg_locations)
                 for i in self._bot.get_user_following(self.id(), nfollows=2000)
             )
         return self._following
@@ -147,26 +148,76 @@ class SimpleInstaUser(InstaUser):
         )
 
     def save_posts_info(self):
-        media_ids = self._bot.get_last_user_medias(self._pg_user.id(), 5)
-        for m_id in media_ids:
+        for post in InstaUserPosts(self._bot, self._pg_user, self._pg_users, self._pg_locations).posts():
+            post.update_caption()
+            post.update_location()
+            post.update_taken_at()
+            post.update_likes()
+            post.update_user_tags()
+
+
+class InstaUserPosts:
+    def __init__(self, bot, user: User, users: Users, locations: Locations):
+        self._bot = bot
+        self._user = user
+        self._users = users
+        self._locations = locations
+
+    def posts(self):
+        for m_id in self._bot.get_last_user_medias(self._user.id(), 6):
             info = self._bot.get_media_info(m_id)[0]
-            post = self._pg_user.media().post(info["pk"], info["code"])
-            post.update_caption(info["caption"]["text"])
-            location = self._pg_locations.location(info["location"]["pk"])
-            location.update_lat_lng(info["location"]["lat"], info["location"]["lng"])
-            location.update_name(info["location"]["name"])
-
-            post.update_location(location)
-            post.update_taken_at(datetime.fromtimestamp(info["taken_at"]))
-            post.update_like_count(info[0]["like_count"])
-            post.update_user_tags(
-                [self._pg_users.user(tag["pk"]) for tag in info["usertags"]["in"]]
+            yield InstaPost(
+                self._bot,
+                self._user.media().post(info["pk"], info["code"]),
+                self._user,
+                self._users,
+                self._locations,
+                info,
+                m_id,
             )
-            post.update_likers(
-                [self._pg_users.user(int(_id)) for _id in self._bot.get_media_likers(m_id)]
-            )
-        # TODO: split this method into multiple classes
 
 
+class InstaPost:
+    def __init__(self, bot, post: Post, user: User, users: Users, locations: Locations, info, media_id):
+        self._bot = bot
+        self._user = user
+        self._users = users
+        self._locations = locations
+        self._post = post
+        self._info = info
+        self._media_id = media_id
 
+    @lru_cache
+    def _location(self):
+        location = self._locations.location(self._info["location"]["pk"])
+        location.update_lat_lng(self._info["location"]["lat"], self._info["location"]["lng"])
+        location.update_name(self._info["location"]["name"])
+        return location
 
+    def post(self):
+        return self._post
+
+    @lru_cache
+    def update_location(self):
+        self._post.update_location(self._location())
+
+    @lru_cache
+    def update_caption(self):
+        self._post.update_caption(self._info["caption"]["text"])
+
+    @lru_cache
+    def update_taken_at(self):
+        self._post.update_taken_at(datetime.fromtimestamp(self._info["taken_at"]))
+
+    @lru_cache
+    def update_likes(self):
+        self._post.update_like_count(self._info[0]["like_count"])
+        self._post.update_likers(
+            [self._users.user(int(_id)) for _id in self._bot.get_media_likers(self._media_id)]
+        )
+
+    @lru_cache
+    def update_user_tags(self):
+        self._post.update_user_tags(
+            [self._users.user(tag["pk"]) for tag in self._info["usertags"]["in"]]
+        )
