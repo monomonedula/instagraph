@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Tuple
+from typing import Tuple, Iterable
 
 
 class Users(ABC):
@@ -201,6 +201,16 @@ class Actions:
 
     @abstractmethod
     def posts_info_saved(self, user_id):
+        pass
+
+
+class FollowSchedule(ABC):
+    @abstractmethod
+    def users_to_be_followed(self, by) -> Iterable[User]:
+        pass
+
+    @abstractmethod
+    def mark_fulfilled(self, follower, followed):
         pass
 
 

@@ -1,7 +1,8 @@
+from instagraph.persistence.interfaces import FollowSchedule
 from instagraph.persistence.pg.user import PgUser
 
 
-class FollowSchedule:
+class PgFollowSchedule(FollowSchedule):
     def __init__(self, pgsql):
         self._pgsql = pgsql
 
