@@ -1,4 +1,4 @@
-from instagraph.persistence.interfaces import UserMedia
+from instagraph.persistence.interfaces import UserMedia, Post
 from instagraph.persistence.pg.post import PgPost
 
 
