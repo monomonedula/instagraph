@@ -1,11 +1,10 @@
-from instagraph.persistence.interfaces import User, AlreadyFollowing
+from instagraph.persistence.interfaces import User, AlreadyFollowing, UserMedia, UserInfo
 from instagraph.persistence.pg.pgsql import Pgsql
-from instagraph.persistence.pg.user import PgUser
 from instagraph.persistence.pg.timeline.connections import TimelineFollowers, TimelineFollowing
 
 
 class TimelinePgUser(User):
-    def __init__(self, user: PgUser, pgsql: Pgsql):
+    def __init__(self, user: User, pgsql: Pgsql):
         self._user = user
         self._pgsql = pgsql
 
@@ -30,3 +29,6 @@ class TimelinePgUser(User):
 
     def info(self) -> "UserInfo":
         return self._user.info()
+
+    def media(self) -> "UserMedia":
+        return self._user.media()
