@@ -1,7 +1,7 @@
 from abc_delegation import delegation_metaclass
 
 from instagraph.gathering.interfaces import InstaUser
-from instagraph.persistence.actions import Actions
+from instagraph.persistence.interfaces import Actions
 
 
 class LazyInstaUser(InstaUser, metaclass=delegation_metaclass("_user")):

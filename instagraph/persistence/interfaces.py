@@ -166,5 +166,43 @@ class Location(ABC):
         pass
 
 
+class Actions:
+    @abstractmethod
+    def followers_explored(self, user_id):
+        pass
+
+    @abstractmethod
+    def following_explored(self, user_id):
+        pass
+
+    @abstractmethod
+    def info_saved(self, user_id):
+        pass
+
+    @abstractmethod
+    def media_info_saved(self, user_id):
+        pass
+
+    @abstractmethod
+    def mark_followers_explored(self, user_id):
+        pass
+
+    @abstractmethod
+    def mark_following_explored(self, user_id):
+        pass
+
+    @abstractmethod
+    def mark_info_saved(self, user_id):
+        pass
+
+    @abstractmethod
+    def mark_posts_info_saved(self, user_id):
+        pass
+
+    @abstractmethod
+    def posts_info_saved(self, user_id):
+        pass
+
+
 class AlreadyFollowing(Exception):
     pass

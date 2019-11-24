@@ -1,4 +1,7 @@
-class Actions:
+from instagraph.persistence.interfaces import Actions
+
+
+class PgActions(Actions):
     def __init__(self, pgsql):
         self._pgsql = pgsql
 
