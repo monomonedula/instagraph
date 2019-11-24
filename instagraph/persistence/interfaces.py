@@ -206,11 +206,15 @@ class Actions:
 
 class FollowSchedule(ABC):
     @abstractmethod
-    def users_to_be_followed(self, by) -> Iterable[User]:
+    def users_to_be_followed(self, by: User) -> Iterable[User]:
         pass
 
     @abstractmethod
-    def mark_fulfilled(self, follower, followed):
+    def mark_fulfilled(self, follower: User, followed: User):
+        pass
+
+    @abstractmethod
+    def mark_rejected(self, follower: User, followed: User, reason=None):
         pass
 
 
