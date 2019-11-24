@@ -1,44 +1,6 @@
 from typing import Iterable
 
-from .pgsql import Pgsql
-from .users import Users, User, PgUser, AlreadyFollowing, Followers, Following, UserInfo
-
-
-class TimelinePgUsers(Users):
-    def __init__(self, users, pgsql):
-        self._users = users
-        self._pgsql = pgsql
-
-    def user(self, user_id):
-        return TimelinePgUser(self._users.user(user_id), self._pgsql)
-
-
-class TimelinePgUser(User):
-    def __init__(self, user: PgUser, pgsql: Pgsql):
-        self._user = user
-        self._pgsql = pgsql
-
-    def id(self):
-        return self._user.id()
-
-    def following(self):
-        return TimelineFollowing(self._user.following(), self._pgsql)
-
-    def followers(self):
-        return TimelineFollowers(self._user.followers(), self._pgsql)
-
-    def schedule_follow(self, user, tags=tuple(), priority=5):
-        if self._pgsql.exec(
-            "SELECT * FROM connections_timeline "
-            "WHERE follower = %s AND "
-            "followed = %s",
-            (self.id(), user.id()),
-        ):
-            raise AlreadyFollowing(f"Already following user {user.id()}")
-        self._user.schedule_follow(user, tags, priority)
-
-    def info(self) -> "UserInfo":
-        return self._user.info()
+from instagraph.persistence.interfaces import Followers, User, Following
 
 
 class TimelineFollowers(Followers):

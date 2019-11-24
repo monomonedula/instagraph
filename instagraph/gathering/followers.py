@@ -5,7 +5,7 @@ from functools import lru_cache
 from abc_delegation import delegation_metaclass
 
 from ..persistence.actions import Actions
-from ..persistence.users import User, Locations, Users, Post
+from ..persistence.interfaces import User, Locations, Users, Post
 
 
 class Scan:

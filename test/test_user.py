@@ -1,4 +1,4 @@
-from instagraph.persistence.users import PgUsers
+from instagraph.persistence.pg.users import PgUsers
 
 
 def test_user(pgsql):
