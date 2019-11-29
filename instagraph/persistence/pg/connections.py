@@ -1,13 +1,13 @@
 from typing import Iterable
 
-from instagraph.persistence.interfaces import Following, Followers, User
-from instagraph.persistence.pg.user import PgUser
+from instagraph.persistence.interfaces import Following, Followers, User, Users
 
 
 class PgUserFollowing(Following):
-    def __init__(self, pgsql, user_id):
+    def __init__(self, pgsql, user_id, users: Users):
         self._uid = user_id
         self._pgsql = pgsql
+        self._users = users
 
     def user_id(self):
         return self._uid
@@ -19,7 +19,7 @@ class PgUserFollowing(Following):
 
     def users(self):
         return map(
-            lambda record: PgUser(self._pgsql, record[0]),
+            lambda record: self._users.user(record[0]),
             self._pgsql.exec(
                 "SELECT followed FROM connections WHERE follower = %s ", (self._uid,)
             ),
@@ -69,9 +69,10 @@ class PgUserFollowing(Following):
 
 
 class PgUserFollowers(Followers):
-    def __init__(self, pgsql, user_id):
+    def __init__(self, pgsql, user_id, users: Users):
         self._uid = user_id
         self._pgsql = pgsql
+        self._users = users
 
     def user_id(self):
         return self._uid
@@ -83,7 +84,7 @@ class PgUserFollowers(Followers):
 
     def users(self):
         return map(
-            lambda record: PgUser(self._pgsql, record[0]),
+            lambda record: self._users.user(record[0]),
             self._pgsql.exec(
                 "SELECT follower FROM connections WHERE followed = %s ", (self._uid,)
             ),
