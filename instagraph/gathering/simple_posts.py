@@ -1,5 +1,4 @@
 from datetime import datetime
-from functools import lru_cache
 
 from instagraph.gathering.interfaces import InstaPost
 from instagraph.persistence.interfaces import User, Users, Locations, Post
