@@ -1,10 +1,10 @@
 from instagraph.persistence.interfaces import Users
 from instagraph.persistence.pg.user import PgUser
-from instagraph.persistence.pg.pgsql import Pgsql
+from instagraph.persistence.pg.pgsql import PgsqlBase
 
 
 class PgUsers(Users):
-    def __init__(self, pgsql: Pgsql):
+    def __init__(self, pgsql: PgsqlBase):
         self._pgsql = pgsql
 
     def user(

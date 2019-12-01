@@ -1,9 +1,21 @@
+from abc import ABC, abstractmethod
+
 from psycopg2.extras import NamedTupleConnection
 from psycopg2.pool import ThreadedConnectionPool
 from psycopg2 import ProgrammingError
 
 
-class Pgsql:
+class PgsqlBase(ABC):
+    @abstractmethod
+    def exec(self, sql, args=None):
+        pass
+
+    @abstractmethod
+    def transaction(self, operation):
+        pass
+
+
+class Pgsql(PgsqlBase):
     def __init__(self, min_con, max_con, *args, **kwargs):
         self._pool = ThreadedConnectionPool(
             min_con, max_con, *args, connection_factory=NamedTupleConnection, **kwargs
