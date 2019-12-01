@@ -36,7 +36,7 @@ class DummyUser(User):
     def followers(self):
         raise NotImplemented
 
-    def schedule_follow(self, user_id, tags=tuple(), priority=5):
+    def schedule_follow(self, user, tags=tuple(), priority=5):
         raise NotImplemented
 
     def info(self):
