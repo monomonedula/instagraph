@@ -1,14 +1,15 @@
-from instagraph.persistence.interfaces import FollowSchedule, User
-from instagraph.persistence.pg.user import PgUser
+from instagraph.persistence.interfaces import FollowSchedule, User, Users
+from instagraph.persistence.pg.pgsql import PgsqlBase
 
 
 class PgFollowSchedule(FollowSchedule):
-    def __init__(self, pgsql):
+    def __init__(self, pgsql: PgsqlBase, users: Users):
         self._pgsql = pgsql
+        self._users = users
 
     def users_to_be_followed(self, by: User):
         return map(
-            lambda record: PgUser(self._pgsql, record[0]),
+            lambda record: self._users.user(record[0]),
             self._pgsql.exec(
                 "SELECT user_to_be_followed FROM follow_schedule "
                 " WHERE user_to_follow = %s AND"

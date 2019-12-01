@@ -13,4 +13,4 @@ class PgUsers(Users):
         self._pgsql.exec(
             "INSERT INTO users (id) " "VALUES (%s) ON CONFLICT DO NOTHING", [user_id]
         )
-        return PgUser(self._pgsql, user_id)
+        return PgUser(self._pgsql, user_id, self)
