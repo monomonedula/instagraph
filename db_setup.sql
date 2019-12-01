@@ -197,5 +197,5 @@ CREATE TABLE social.locations
     location_id bigint,
     name character varying(255),
     lat double precision,
-    lng double precision,
-)
+    lng double precision
+);
