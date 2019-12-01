@@ -20,15 +20,6 @@ class PgUser(User):
     def followers(self):
         return PgUserFollowers(self._pgsql, self._id, self._users)
 
-    def schedule_follow(self, user: User, tags=tuple(), priority=5):
-        if self.following().is_following(user):
-            raise AlreadyFollowing(f"Already following user {user.id()}")
-        self._pgsql.exec(
-            "INSERT INTO follow_schedule (user_to_follow, user_to_be_followed, scheduled, priority, tags) "
-            "VALUES (%s, %s, NOW()::date, %s, %s) ON CONFLICT DO NOTHING",
-            (self._id, user.id(), priority, tags),
-        )
-
     def info(self) -> "UserInfo":
         return PgUserInfo(self._pgsql, self.id())
 

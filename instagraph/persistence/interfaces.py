@@ -23,10 +23,6 @@ class User(ABC):
         pass
 
     @abstractmethod
-    def schedule_follow(self, user_id, tags=tuple(), priority=5):
-        pass
-
-    @abstractmethod
     def info(self) -> "UserInfo":
         pass
 
@@ -215,6 +211,10 @@ class FollowSchedule(ABC):
 
     @abstractmethod
     def mark_rejected(self, follower: User, followed: User, reason=None):
+        pass
+
+    @abstractmethod
+    def add_record(self, user: User, user_to_be_followed: User, tags: tuple = None, priority: int = None):
         pass
 
 

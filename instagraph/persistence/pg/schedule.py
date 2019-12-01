@@ -1,4 +1,4 @@
-from instagraph.persistence.interfaces import FollowSchedule, User, Users
+from instagraph.persistence.interfaces import FollowSchedule, User, Users, AlreadyFollowing
 from instagraph.persistence.pg.pgsql import PgsqlBase
 
 
@@ -48,4 +48,13 @@ class PgFollowSchedule(FollowSchedule):
                 follower.id(),
                 followed.id(),
             ],
+        )
+
+    def add_record(self, user, user_to_be_followed, tags=tuple(), priority=5):
+        if user.following().is_following(user):
+            raise AlreadyFollowing(f"User {user.id()} is already following user {user_to_be_followed.id()}")
+        self._pgsql.exec(
+            "INSERT INTO follow_schedule (user_to_follow, user_to_be_followed, scheduled, priority, tags) "
+            "VALUES (%s, %s, NOW()::date, %s, %s) ON CONFLICT DO NOTHING",
+            (user.id(), user_to_be_followed.id(), priority, tags),
         )
