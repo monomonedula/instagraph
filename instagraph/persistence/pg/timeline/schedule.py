@@ -36,6 +36,7 @@ class NoFollowDuplications(FollowSchedule, metaclass=delegation_metaclass(delega
                 (user.id(), user_to_be_followed.id()),
         ):
             raise HadBeenFollowing(f"User {user.id()} has history of following user {user_to_be_followed.id()}")
+        self._schedule.add_record(user, user_to_be_followed, tags, priority)
 
 
 class HadBeenFollowing(Exception):
