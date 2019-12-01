@@ -43,7 +43,7 @@ class DummyUser(User):
         raise NotImplemented
 
 
-def test_simple_insta_user_retrive_followers():
+def test_simple_insta_user_retreive_followers():
     """Should call the bot's 'get_user_followers' method """
     bot = Bot()
     user = DummyUser(42)
