@@ -1,9 +1,9 @@
 from instagraph.persistence.interfaces import UserInfo
-from instagraph.persistence.pg.pgsql import Pgsql
+from instagraph.persistence.pg.pgsql import PgsqlBase
 
 
 class PgUserInfo(UserInfo):
-    def __init__(self, pgsql: Pgsql, user_id):
+    def __init__(self, pgsql: PgsqlBase, user_id):
         self._pgsql = pgsql
         self._user_id = user_id
 
