@@ -72,10 +72,10 @@ class ScheduleConsistentUser(User, metaclass=delegation_metaclass("_user")):
         self._schedule = schedule
 
     def following(self) -> "Following":
-        return ScheduleConsFollowing(self._user.following(), self._schedule, self._pgsql)
+        return ScheduleConsFollowing(self, self._user.following(), self._schedule, self._pgsql)
 
     def followers(self) -> "Followers":
-        pass
+        return ScheduleConsFollowers(self, self._user.followers(), self._schedule, self._pgsql)
 
 
 class ScheduleConsFollowing(Following, metaclass=delegation_metaclass("_following")):
