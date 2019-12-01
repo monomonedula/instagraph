@@ -1,4 +1,4 @@
-from instagraph.persistence.interfaces import User, AlreadyFollowing
+from instagraph.persistence.interfaces import User, AlreadyFollowing, UserInfo, UserMedia
 from instagraph.persistence.pg.user_media import PgUserMedia
 from instagraph.persistence.pg.user_info import PgUserInfo
 from instagraph.persistence.pg.connections import PgUserFollowing, PgUserFollowers
