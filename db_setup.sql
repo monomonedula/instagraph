@@ -27,7 +27,7 @@ CREATE TABLE social.posts
     id bigint NOT NULL,
     description text COLLATE pg_catalog."default",
     nlikes integer,
-    location bigint COLLATE pg_catalog."default",
+    location bigint,
     CONSTRAINT posts_pkey PRIMARY KEY (user_id, id),
     CONSTRAINT posts_user_id_fkey FOREIGN KEY (user_id)
         REFERENCES social.users (id) MATCH SIMPLE
@@ -190,3 +190,12 @@ CREATE TABLE social.actions
 WITH (
     OIDS = FALSE
 );
+
+
+CREATE TABLE social.locations
+(
+    location_id bigint,
+    name character varying(255),
+    lat double precision,
+    lng double precision,
+)
