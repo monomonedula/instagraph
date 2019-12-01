@@ -13,9 +13,7 @@ def test_user(pgsql):
     assert following.user_id() == 12345
     assert following.number() is None
     assert list(following.users()) == []
-    user.schedule_follow(PgUsers(pgsql).user(123), ["kids"])
     user.info().add_tag("kids")
-    pgsql.exec("SELECT * FROM follow_schedule")
 
 
 def test_followers(pgsql):
