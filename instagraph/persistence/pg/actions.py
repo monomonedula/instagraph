@@ -2,6 +2,7 @@ from instagraph.persistence.interfaces import Actions
 
 
 class PgActions(Actions):
+    # TODO: consider refactoring this into multiple classes. Too many methods
     def __init__(self, pgsql):
         self._pgsql = pgsql
 
@@ -29,14 +30,6 @@ class PgActions(Actions):
             )
         )
 
-    def media_info_saved(self, user_id):
-        return bool(
-            self._pgsql.exec(
-                "SELECT date_taken FROM actions WHERE user_id = %s AND action_type = 'media_info_saved'",
-                (user_id,),
-            )
-        )
-
     def mark_followers_explored(self, user_id):
         self._pgsql.exec(
             "INSERT INTO actions (date_taken, action_type, user_id) VALUES "
@@ -55,7 +48,7 @@ class PgActions(Actions):
         self._pgsql.exec(
             "INSERT INTO actions (date_taken, action_type, user_id) VALUES "
             "(NOW()::date, %s, %s)",
-            ("media_info_saved", user_id),
+            ("info_saved", user_id),
         )
 
     def mark_posts_info_saved(self, user_id):

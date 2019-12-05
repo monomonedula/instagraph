@@ -176,10 +176,6 @@ class Actions:
         pass
 
     @abstractmethod
-    def media_info_saved(self, user_id):
-        pass
-
-    @abstractmethod
     def mark_followers_explored(self, user_id):
         pass
 
