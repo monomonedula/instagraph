@@ -1,9 +1,12 @@
 from datetime import date
 
+import pytest
+
 from instagraph.persistence.pg.users import PgUsers
 from instagraph.persistence.pg.timeline.users import TimelinePgUsers
 
 
+@pytest.mark.postgresql
 def test_timeline_followers(pgsql):
     users = TimelinePgUsers(PgUsers(pgsql), pgsql)
     user = users.user(12345)
@@ -17,6 +20,7 @@ def test_timeline_followers(pgsql):
     assert {u.id() for u in user.followers().users()} == {33333, 22222, 55523}
 
 
+@pytest.mark.postgresql
 def test_timeline_following(pgsql):
     users = TimelinePgUsers(PgUsers(pgsql), pgsql)
     user = users.user(12345)
@@ -37,6 +41,7 @@ def test_timeline_following(pgsql):
     }
 
 
+@pytest.mark.postgresql
 def test_following_follow_unfollow(pgsql):
     users = TimelinePgUsers(PgUsers(pgsql), pgsql)
     user = users.user(12345)

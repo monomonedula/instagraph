@@ -1,6 +1,9 @@
+import pytest
+
 from instagraph.persistence.pg.users import PgUsers
 
 
+@pytest.mark.postgresql
 def test_user(pgsql):
     user = PgUsers(pgsql).user(12345)
     assert user.id() == 12345
@@ -16,6 +19,7 @@ def test_user(pgsql):
     user.info().add_tag("kids")
 
 
+@pytest.mark.postgresql
 def test_followers(pgsql):
     users = PgUsers(pgsql)
     user = users.user(12345)
@@ -29,6 +33,7 @@ def test_followers(pgsql):
     assert {u.id() for u in user.followers().users()} == {33333, 22222, 55523}
 
 
+@pytest.mark.postgresql
 def test_following(pgsql):
     users = PgUsers(pgsql)
     user = users.user(12345)
@@ -42,6 +47,7 @@ def test_following(pgsql):
     assert {u.id() for u in user.following().users()} == {33333, 22222, 55523}
 
 
+@pytest.mark.postgresql
 def test_following_follow_unfollow(pgsql):
     users = PgUsers(pgsql)
     user = users.user(12345)
