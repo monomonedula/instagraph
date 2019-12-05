@@ -125,13 +125,29 @@ TABLESPACE pg_default;
 
 CREATE TABLE social.follow_schedule
 (
-    user_to_follow bigint NOT NULL,
-    user_to_be_followed bigint NOT NULL,
+    follower bigint NOT NULL,
+    followed bigint NOT NULL,
     scheduled date NOT NULL,
     done date,
     priority integer,
     tags character varying[] DEFAULT '{}'::character varying[],
-    CONSTRAINT follow_schedule_pkey PRIMARY KEY (user_to_follow, user_to_be_followed, scheduled)
+    CONSTRAINT follow_schedule_pkey PRIMARY KEY (follower, followed, scheduled)
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+
+CREATE TABLE social.unfollow_schedule
+(
+    follower bigint NOT NULL,
+    unfollowed bigint NOT NULL,
+    scheduled date NOT NULL,
+    done date,
+    priority integer,
+    tags character varying[] DEFAULT '{}'::character varying[],
+    CONSTRAINT unfollow_schedule_pkey PRIMARY KEY (follower, unfollowed, scheduled)
 )
 WITH (
     OIDS = FALSE

@@ -218,5 +218,27 @@ class FollowSchedule(ABC):
         pass
 
 
+class UnfollowSchedule(ABC):
+    @abstractmethod
+    def users_to_be_unfollowed(self, by: User) -> Iterable[User]:
+        pass
+
+    @abstractmethod
+    def mark_fulfilled(self, follower: User, followed: User):
+        pass
+
+    @abstractmethod
+    def mark_rejected(self, follower: User, followed: User, reason=None):
+        pass
+
+    @abstractmethod
+    def add_record(self, user: User, user_to_be_followed: User, tags: tuple = None, priority: int = None):
+        pass
+
+
 class AlreadyFollowing(Exception):
+    pass
+
+
+class AlreadyNotFollowing(Exception):
     pass

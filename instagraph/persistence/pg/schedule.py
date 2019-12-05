@@ -1,11 +1,72 @@
+from typing import Iterable
+
 from abc_delegation import delegation_metaclass
 
-from instagraph.persistence.interfaces import FollowSchedule, User, Users, AlreadyFollowing, Following, Followers
+from instagraph.persistence.interfaces import FollowSchedule, User, Users, AlreadyFollowing, Following, Followers, \
+    UnfollowSchedule, AlreadyNotFollowing
 from instagraph.persistence.pg.pgsql import PgsqlBase
 
 
+class PgUnfollowSchedule(UnfollowSchedule):
+    def __init__(self, pgsql: PgsqlBase, users: Users):
+        self._pgsql = pgsql
+        self._users = users
+
+    def users_to_be_unfollowed(self, by: User) -> Iterable[User]:
+        return map(
+            lambda record: self._users.user(record[0]),
+            self._pgsql.exec(
+                "SELECT unfollowed FROM unfollow_schedule "
+                " WHERE user_to_follow = %s AND"
+                " done IS NULL AND"
+                " NOT ('rejected' = ANY(tags))"
+                " ORDER BY priority ASC",
+                (by.id(),),
+            ),
+        )
+
+    def mark_fulfilled(self, follower: User, unfollowed: User):
+        return self._pgsql.exec(
+            "UPDATE unfollow_schedule SET done = NOW()::date "
+            "FROM ( SELECT * FROM unfollow_schedule"
+            "        WHERE follower = %s AND unfollowed = %s ORDER BY scheduled ASC LIMIT 1"
+            "      )",
+            (follower.id(), unfollowed.id()),
+        )
+
+    def mark_rejected(self, follower: User, unfollowed: User, reason=None):
+        query = " ".join(
+            [
+                "UPDATE unfollow_schedule ",
+                "tags = array_append(array_remove(tags, %s), %s)"
+                if not reason
+                else "tags = array_append(array_remove(array_append(array_remove(tags, %s), %s), %s) %s)",
+                " WHERE follower = %s AND unfollowed = %s",
+            ]
+        )
+        self._pgsql.exec(
+            query,
+            [
+                "rejected",
+                "rejected",
+                *([reason, reason] if reason else []),
+                follower.id(),
+                unfollowed.id(),
+            ],
+        )
+
+    def add_record(self, user: User, user_to_be_unfollowed: User, tags: tuple = None, priority: int = None):
+        if not user.following().is_following(user_to_be_unfollowed):
+            raise AlreadyNotFollowing(f"User {user.id()} is not following user {user_to_be_unfollowed.id()}")
+        self._pgsql.exec(
+            "INSERT INTO unfollow_schedule (follower, unfollowed, scheduled, priority, tags) "
+            "VALUES (%s, %s, NOW()::date, %s, %s)"
+            " ON CONFLICT DO NOTHING",
+            (user.id(), user_to_be_unfollowed.id(), priority, list(tags)),
+        )
+
+
 class PgFollowSchedule(FollowSchedule):
-    # TODO: add unfollow scheduling functionality
     def __init__(self, pgsql: PgsqlBase, users: Users):
         self._pgsql = pgsql
         self._users = users
@@ -14,8 +75,8 @@ class PgFollowSchedule(FollowSchedule):
         return map(
             lambda record: self._users.user(record[0]),
             self._pgsql.exec(
-                "SELECT user_to_be_followed FROM follow_schedule "
-                " WHERE user_to_follow = %s AND"
+                "SELECT followed FROM follow_schedule "
+                " WHERE follower = %s AND"
                 " done IS NULL AND"
                 " NOT ('rejected' = ANY(tags))"
                 " ORDER BY priority ASC",
@@ -27,7 +88,7 @@ class PgFollowSchedule(FollowSchedule):
         self._pgsql.exec(
             "UPDATE follow_schedule SET done = NOW()::date "
             "FROM ( SELECT * FROM follow_schedule"
-            "        WHERE follower = %s AND followed = %s ORDER BY scheduled ASC LIMIT 1"
+            "        WHERE follower = %s AND user_to_be_followed = %s ORDER BY scheduled ASC LIMIT 1"
             "      )",
             (follower.id(), followed.id()),
         )
@@ -57,7 +118,7 @@ class PgFollowSchedule(FollowSchedule):
         if user.following().is_following(user_to_be_followed):
             raise AlreadyFollowing(f"User {user.id()} is already following user {user_to_be_followed.id()}")
         self._pgsql.exec(
-            "INSERT INTO follow_schedule (user_to_follow, user_to_be_followed, scheduled, priority, tags) "
+            "INSERT INTO follow_schedule (follower, followed, scheduled, priority, tags) "
             "VALUES (%s, %s, NOW()::date, %s, %s)"
             " ON CONFLICT DO NOTHING",
             (user.id(), user_to_be_followed.id(), priority, list(tags)),
