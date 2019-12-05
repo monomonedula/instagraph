@@ -55,7 +55,7 @@ class PgActions(Actions):
         self._pgsql.exec(
             "INSERT INTO actions (date_taken, action_type, user_id) VALUES "
             "(NOW()::date, %s, %s)",
-            ("posts_info_saved", user_id)
+            ("posts_info_saved", user_id),
         )
 
     def posts_info_saved(self, user_id):

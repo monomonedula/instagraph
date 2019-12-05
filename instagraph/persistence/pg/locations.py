@@ -8,8 +8,6 @@ class PgLocations(Locations):
 
     def location(self, pk):
         self._pgsql.exec(
-            "INSERT INTO locations (id) VALUES %s "
-            "ON CONFLICT DO NOTHING",
-            [pk]
+            "INSERT INTO locations (id) VALUES %s " "ON CONFLICT DO NOTHING", [pk]
         )
         return PgLocation(self._pgsql, pk)

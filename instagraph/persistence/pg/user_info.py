@@ -11,7 +11,8 @@ class PgUserInfo(UserInfo):
         return self._user_id
 
     def update(
-        self, *,
+        self,
+        *,
         category=None,
         name=None,
         nfollowers=None,

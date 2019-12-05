@@ -13,31 +13,31 @@ class PgPost(Post):
     def update_caption(self, caption_text: str):
         self._pgsql.exec(
             "UPDATE posts SET caption = %s WHERE user_id = %s AND id = %s",
-            (caption_text, self._uid, self._id)
+            (caption_text, self._uid, self._id),
         )
 
     def update_location(self, location):
         self._pgsql.exec(
             "UPDATE posts SET location = %s WHERE user_id = %s AND id = %s",
-            (location.id(), self._uid, self._id)
+            (location.id(), self._uid, self._id),
         )
 
     def update_like_count(self, count):
         self._pgsql.exec(
             "UPDATE posts SET nlikes = %s WHERE user_id = %s AND id = %s",
-            [count, self._uid, self._id]
+            [count, self._uid, self._id],
         )
 
     def update_user_tags(self, users):
         self._pgsql.exec(
             "UPDATE posts SET user_tags = %s WHERE user_id = %s AND id = %s",
-            [[u.id() for u in users], self._uid, self._id]
+            [[u.id() for u in users], self._uid, self._id],
         )
 
     def update_taken_at(self, dt: datetime):
         self._pgsql.exec(
             "UPDATE posts SET taken_at = %s WHERE user_id = %s AND id = %s",
-            [dt, self._uid, self._id]
+            [dt, self._uid, self._id],
         )
 
     def update_likers(self, users):
@@ -46,10 +46,10 @@ class PgPost(Post):
                 "INSERT INTO likes (user_id, post_id, post_user_id)"
                 " VALUES (%s, %s, %s)"
                 " ON CONFLICT DO NOTHING",
-                [u.id(), self._id, self._uid]
+                [u.id(), self._id, self._uid],
             )
 
         self._pgsql.exec(
             "UPDATE posts SET likes = %s WHERE user_id = %s AND id = %s",
-            [[u.id() for u in users], self._uid, self._id]
+            [[u.id() for u in users], self._uid, self._id],
         )

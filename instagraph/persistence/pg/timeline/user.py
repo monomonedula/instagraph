@@ -1,6 +1,9 @@
 from instagraph.persistence.interfaces import User, UserMedia, UserInfo
 from instagraph.persistence.pg.pgsql import PgsqlBase
-from instagraph.persistence.pg.timeline.connections import TimelineFollowers, TimelineFollowing
+from instagraph.persistence.pg.timeline.connections import (
+    TimelineFollowers,
+    TimelineFollowing,
+)
 
 
 class TimelinePgUser(User):
