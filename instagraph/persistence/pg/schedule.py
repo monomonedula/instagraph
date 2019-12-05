@@ -25,7 +25,7 @@ class PgUnfollowSchedule(UnfollowSchedule):
             lambda record: self._users.user(record[0]),
             self._pgsql.exec(
                 "SELECT unfollowed FROM unfollow_schedule "
-                " WHERE user_to_follow = %s AND"
+                " WHERE follower = %s AND"
                 " done IS NULL AND"
                 " NOT ('rejected' = ANY(tags))"
                 " ORDER BY priority ASC",
@@ -44,7 +44,7 @@ class PgUnfollowSchedule(UnfollowSchedule):
     def mark_rejected(self, follower: User, unfollowed: User, reason=None):
         query = " ".join(
             [
-                "UPDATE unfollow_schedule ",
+                "UPDATE unfollow_schedule SET",
                 "tags = array_append(array_remove(tags, %s), %s)"
                 if not reason
                 else "tags = array_append(array_remove(array_append(array_remove(tags, %s), %s), %s) %s)",
@@ -66,7 +66,7 @@ class PgUnfollowSchedule(UnfollowSchedule):
         self,
         user: User,
         user_to_be_unfollowed: User,
-        tags: tuple = None,
+        tags: tuple = tuple(),
         priority: int = None,
     ):
         if not user.following().is_following(user_to_be_unfollowed):
@@ -141,7 +141,9 @@ class PgFollowSchedule(FollowSchedule):
             (user.id(), user_to_be_followed.id(), priority, list(tags)),
         )
 
-    # TODO: add a record removal method
+    def clean_up(self, target="fulfilled"):
+        # TODO: add a record removal method
+        pass
 
 
 class ScheduleConsistentUser(User, metaclass=delegation_metaclass("_user")):
@@ -215,6 +217,10 @@ class ScheduleConsFollowing(Following, metaclass=delegation_metaclass("_followin
     def unfollow(self, user):
         self._following.unfollow(user)
         self._unfollow_schedule.mark_fulfilled(self._user, user)
+
+    def clean_up(self, target="fulfilled"):
+        # TODO: implement unactive records removal
+        pass
 
 
 class ScheduleConsFollowers(Followers, metaclass=delegation_metaclass("_followers")):
