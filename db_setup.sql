@@ -131,7 +131,7 @@ CREATE TABLE social.follow_schedule
     done date,
     priority integer,
     tags character varying[] DEFAULT '{}'::character varying[],
-    CONSTRAINT follow_schedule_pkey PRIMARY KEY (follower, followed, scheduled)
+    CONSTRAINT follow_schedule_pkey PRIMARY KEY (follower, followed)
 )
 WITH (
     OIDS = FALSE
@@ -147,7 +147,7 @@ CREATE TABLE social.unfollow_schedule
     done date,
     priority integer,
     tags character varying[] DEFAULT '{}'::character varying[],
-    CONSTRAINT unfollow_schedule_pkey PRIMARY KEY (follower, unfollowed, scheduled)
+    CONSTRAINT unfollow_schedule_pkey PRIMARY KEY (follower, unfollowed)
 )
 WITH (
     OIDS = FALSE
