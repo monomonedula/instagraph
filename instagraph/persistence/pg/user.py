@@ -1,6 +1,5 @@
 from instagraph.persistence.interfaces import (
     User,
-    AlreadyFollowing,
     UserInfo,
     UserMedia,
     Users,
