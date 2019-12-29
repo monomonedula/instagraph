@@ -1,3 +1,5 @@
+from methodtools import lru_cache
+
 from instagraph.gathering.simple_posts import SimpleInstaUserPosts
 from instagraph.gathering.interfaces import InstaUser
 from instagraph.persistence.interfaces import User, Users, Locations
@@ -9,27 +11,23 @@ class SimpleInstaUser(InstaUser):
         self._pg_user = pg_user
         self._pg_users = pg_users
         self._pg_locations = pg_locations
-        self._followers = None
-        self._following = None
 
     def id(self):
         return self._pg_user.id()
 
+    @lru_cache()
     def retrieve_followers(self):
-        if self._followers is None:
-            self._followers = tuple(
-                SimpleInstaUser(self._bot, self._pg_users.user(i), self._pg_users, self._pg_locations)
-                for i in self._bot.get_user_followers(self.id(), nfollows=20000)
-            )
-        return self._followers
+        return tuple(
+            SimpleInstaUser(self._bot, self._pg_users.user(i), self._pg_users, self._pg_locations)
+            for i in self._bot.get_user_followers(self.id(), nfollows=20000)
+        )
 
+    @lru_cache()
     def retrieve_following(self):
-        if self._following is None:
-            self._following = tuple(
-                SimpleInstaUser(self._bot, self._pg_users.user(i), self._pg_users, self._pg_locations)
-                for i in self._bot.get_user_following(self.id(), nfollows=2000)
-            )
-        return self._following
+        return tuple(
+            SimpleInstaUser(self._bot, self._pg_users.user(i), self._pg_users, self._pg_locations)
+            for i in self._bot.get_user_following(self.id(), nfollows=2000)
+        )
 
     def save_followers(self):
         self._pg_user.followers().update_followers(self.retrieve_followers())
