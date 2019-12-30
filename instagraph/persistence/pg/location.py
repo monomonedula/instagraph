@@ -13,13 +13,13 @@ class PgLocation(Location):
 
     def update_lat_lng(self, lat: float, lng: float) -> None:
         self._pgsql.exec(
-            "UPDATE locations SET lat = %s, lng = %s WHERE id = %s",
+            "UPDATE locations SET lat = %s, lng = %s WHERE location_id = %s",
             [lat, lng, self._id],
         )
 
     def update_name(self, name: str) -> None:
         self._pgsql.exec(
-            "UPDATE locations SET name = %s WHERE id = %s", [name, self._id]
+            "UPDATE locations SET name = %s WHERE location_id = %s", [name, self._id]
         )
 
     def name(self) -> str:
@@ -29,5 +29,5 @@ class PgLocation(Location):
 
     def lat_lng(self) -> Tuple[float, float]:
         return self._pgsql.exec(
-            "SELECT lat, lng FROM locations WHERE id = %s", [self._id]
+            "SELECT lat, lng FROM locations WHERE location_id = %s", [self._id]
         )[0]

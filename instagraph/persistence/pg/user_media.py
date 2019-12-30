@@ -7,10 +7,10 @@ class PgUserMedia(UserMedia):
         self._pgsql = pgsql
         self._uid = user_id
 
-    def post(self, post_id, url=None) -> "Post":
+    def post(self, post_id) -> "Post":
         self._pgsql.exec(
-            "INSERT INTO posts (user_id, id, url) "
-            "VALUES (%s) ON CONFLICT DO NOTHING",
-            [self._uid, post_id, url],
+            "INSERT INTO posts (user_id, id) "
+            "VALUES (%s, %s) ON CONFLICT DO NOTHING",
+            [self._uid, post_id],
         )
         return PgPost(self._pgsql, self._uid, post_id)

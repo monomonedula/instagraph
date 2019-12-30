@@ -22,7 +22,7 @@ def pgsql():
         0,
         10,
         database=config["database"],
-        user=config["database"],
+        user=config["user"],
         password=config["password"],
         host=config["host"],
     )
@@ -35,7 +35,7 @@ def pgsql():
         0,
         10,
         database=config["database"],
-        user=config["database"],
+        user=config["user"],
         password=config["password"],
         host=config["host"],
         options="-c search_path=social",

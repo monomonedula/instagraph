@@ -29,10 +29,13 @@ class PgPost(Post):
         )
 
     def update_user_tags(self, users):
-        self._pgsql.exec(
-            "UPDATE posts SET user_tags = %s WHERE user_id = %s AND id = %s",
-            [[u.id() for u in users], self._uid, self._id],
-        )
+        for u in users:
+            self._pgsql.exec(
+                "INSERT INTO post_user_tags (user_id, post_id, post_user_id)"
+                " VALUES (%s, %s, %s)"
+                " ON CONFLICT DO NOTHING",
+                [u.id(), self._id, self._uid],
+            )
 
     def update_taken_at(self, dt: datetime):
         self._pgsql.exec(
@@ -48,8 +51,4 @@ class PgPost(Post):
                 " ON CONFLICT DO NOTHING",
                 [u.id(), self._id, self._uid],
             )
-
-        self._pgsql.exec(
-            "UPDATE posts SET likes = %s WHERE user_id = %s AND id = %s",
-            [[u.id() for u in users], self._uid, self._id],
-        )
+        self.update_like_count(len(users))

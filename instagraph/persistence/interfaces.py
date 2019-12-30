@@ -104,7 +104,7 @@ class UserInfo(ABC):
 
 class UserMedia(ABC):
     @abstractmethod
-    def post(self, post_id, url) -> "Post":
+    def post(self, post_id) -> "Post":
         pass
 
 

@@ -1,6 +1,6 @@
 CREATE SCHEMA IF NOT EXISTS social;
 
-CREATE TABLE social.users
+CREATE TABLE IF NOT EXISTS social.users
 (
     id bigint NOT NULL,
     username character varying(255) COLLATE pg_catalog."default",
@@ -21,11 +21,12 @@ TABLESPACE pg_default;
 
 
 
-CREATE TABLE social.posts
+CREATE TABLE IF NOT EXISTS social.posts
 (
     user_id bigint NOT NULL,
     id bigint NOT NULL,
-    description text COLLATE pg_catalog."default",
+    caption text COLLATE pg_catalog."default",
+    taken_at timestamp,
     nlikes integer,
     location bigint,
     CONSTRAINT posts_pkey PRIMARY KEY (user_id, id),
@@ -40,7 +41,7 @@ WITH (
 TABLESPACE pg_default;
 
 
-CREATE TABLE social.posts_media
+CREATE TABLE IF NOT EXISTS social.posts_media
 (
     posts_user_id bigint NOT NULL,
     posts_post_id bigint NOT NULL,
@@ -59,7 +60,7 @@ WITH (
 TABLESPACE pg_default;
 
 
-CREATE TABLE social.likes
+CREATE TABLE IF NOT EXISTS social.likes
 (
     user_id bigint NOT NULL,
     post_id bigint NOT NULL,
@@ -80,7 +81,29 @@ WITH (
 TABLESPACE pg_default;
 
 
-CREATE TABLE social.connections
+
+CREATE TABLE IF NOT EXISTS social.post_user_tags
+(
+    user_id bigint NOT NULL,
+    post_id bigint NOT NULL,
+    post_user_id bigint NOT NULL,
+    CONSTRAINT post_user_tags_pkey PRIMARY KEY (user_id, post_id, post_user_id),
+    CONSTRAINT post_user_tags_post_id_fkey FOREIGN KEY (post_id, post_user_id)
+        REFERENCES social.posts (id, user_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT post_user_tags_user_id_fkey FOREIGN KEY (user_id)
+        REFERENCES social.users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+
+CREATE TABLE IF NOT EXISTS social.connections
 (
     follower bigint NOT NULL,
     followed bigint NOT NULL,
@@ -101,7 +124,7 @@ TABLESPACE pg_default;
 
 
 
-CREATE TABLE social.connections_timeline
+CREATE TABLE IF NOT EXISTS social.connections_timeline
 (
     follower bigint NOT NULL,
     followed bigint NOT NULL,
@@ -123,7 +146,7 @@ WITH (
 TABLESPACE pg_default;
 
 
-CREATE TABLE social.follow_schedule
+CREATE TABLE IF NOT EXISTS social.follow_schedule
 (
     follower bigint NOT NULL,
     followed bigint NOT NULL,
@@ -139,7 +162,7 @@ WITH (
 TABLESPACE pg_default;
 
 
-CREATE TABLE social.unfollow_schedule
+CREATE TABLE IF NOT EXISTS social.unfollow_schedule
 (
     follower bigint NOT NULL,
     unfollowed bigint NOT NULL,
@@ -155,7 +178,7 @@ WITH (
 TABLESPACE pg_default;
 
 
-CREATE TABLE social.likes_timeline
+CREATE TABLE IF NOT EXISTS social.likes_timeline
 (
     user_id bigint NOT NULL,
     post_id bigint  NOT NULL,
@@ -176,7 +199,7 @@ WITH (
 TABLESPACE pg_default;
 
 
-CREATE TABLE social.users_timeline
+CREATE TABLE IF NOT EXISTS social.users_timeline
 (
     id bigint NOT NULL,
     username character varying(255) COLLATE pg_catalog."default",
@@ -197,7 +220,7 @@ WITH (
 TABLESPACE pg_default;
 
 
-CREATE TABLE social.actions
+CREATE TABLE IF NOT EXISTS social.actions
 (
     user_id bigint,
     date_taken date,
@@ -208,7 +231,7 @@ WITH (
 );
 
 
-CREATE TABLE social.locations
+CREATE TABLE IF NOT EXISTS social.locations
 (
     location_id bigint,
     name character varying(255),
