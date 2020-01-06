@@ -41,7 +41,18 @@ class SmartInstaUser(InstaUser):
 
     @lru_cache()
     def _info_check(self):
-        info = self._bot.get_user_info(self.id())
+        info = self._info()
+        self._save_info(info)
+        for tag in self._model.tags(info):
+            self._user.info().add_tag(tag)
+        is_target = self._model.is_target(info)
+        if not is_target:
+            print(f"user {self.id()} is not target. Skipping")
+        else:
+            print(f"user {self.id()} is target")
+        return is_target
+
+    def _save_info(self, info):
         self._user.info().update(
             name=info["full_name"],
             username=info["username"],
@@ -51,6 +62,7 @@ class SmartInstaUser(InstaUser):
             bio=info["biography"],
             category=info.get("category"),
         )
-        return self._model.check_info(info)
 
-
+    @lru_cache()
+    def _info(self):
+        return self._bot.get_user_info(self.id())

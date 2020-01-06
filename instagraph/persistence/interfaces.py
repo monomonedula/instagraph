@@ -162,7 +162,7 @@ class Location(ABC):
         pass
 
 
-class Actions:
+class Actions(ABC):
     @abstractmethod
     def followers_explored(self, user_id):
         pass

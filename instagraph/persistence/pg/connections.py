@@ -18,11 +18,13 @@ class PgUserFollowing(Following):
         )[0][0]
 
     def users(self):
-        return map(
-            lambda record: self._users.user(record[0]),
-            self._pgsql.exec(
-                "SELECT followed FROM connections WHERE follower = %s ", (self._uid,)
-            ),
+        return list(
+            map(
+                lambda record: self._users.user(record[0]),
+                self._pgsql.exec(
+                    "SELECT followed FROM connections WHERE follower = %s ", (self._uid,)
+                ),
+            )
         )
 
     def follow(self, user):
@@ -83,11 +85,13 @@ class PgUserFollowers(Followers):
         )[0][0]
 
     def users(self):
-        return map(
-            lambda record: self._users.user(record[0]),
-            self._pgsql.exec(
-                "SELECT follower FROM connections WHERE followed = %s ", (self._uid,)
-            ),
+        return list(
+            map(
+                lambda record: self._users.user(record[0]),
+                self._pgsql.exec(
+                    "SELECT follower FROM connections WHERE followed = %s ", (self._uid,)
+                ),
+            )
         )
 
     def update_followers(self, followers: Iterable[User]):
