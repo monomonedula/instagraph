@@ -24,13 +24,13 @@ def test_followers(pgsql):
     users = PgUsers(pgsql)
     user = users.user(12345)
     user.followers().update_followers(
-        [users.user(33333), users.user(44444), users.user(55523)]
+        [users.user(i) for i in range(400)]
     )
-    assert {u.id() for u in user.followers().users()} == {33333, 44444, 55523}
+    assert {u.id() for u in user.followers().users()} == set(range(400))
     user.followers().update_followers(
-        [users.user(33333), users.user(55523), users.user(22222)]
+        [users.user(i) for i in range(20, 440)]
     )
-    assert {u.id() for u in user.followers().users()} == {33333, 22222, 55523}
+    assert {u.id() for u in user.followers().users()} == set(range(20, 440))
 
 
 @pytest.mark.postgresql
@@ -38,13 +38,13 @@ def test_following(pgsql):
     users = PgUsers(pgsql)
     user = users.user(12345)
     user.following().update_following(
-        [users.user(33333), users.user(44444), users.user(55523)]
+        [users.user(i) for i in range(400)]
     )
-    assert {u.id() for u in user.following().users()} == {33333, 44444, 55523}
+    assert {u.id() for u in user.following().users()} == set(range(400))
     user.following().update_following(
-        [users.user(33333), users.user(55523), users.user(22222)]
+        [users.user(i) for i in range(20, 440)]
     )
-    assert {u.id() for u in user.following().users()} == {33333, 22222, 55523}
+    assert {u.id() for u in user.following().users()} == set(range(20, 440))
 
 
 @pytest.mark.postgresql

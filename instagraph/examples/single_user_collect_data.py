@@ -22,7 +22,9 @@ from instagraph.persistence.pg.users import PgUsers
 
 def main(pgsql, bot, user_id):
     def user_factory(id_: int) -> InstaUser:
-        users = PgUsers(pgsql)
+        return user_to_insta_user(PgUsers(pgsql).user(id_))
+
+    def user_to_insta_user(user: User):
         return NonCommercialInstaUser(
             pgsql,
             LazyInstaUser(
@@ -31,13 +33,13 @@ def main(pgsql, bot, user_id):
                     model=BasicFilteringModel(),
                     insta_user=SleepyInstaUser(
                         30,
-                        SimpleInstaUser(bot, users.user(id_), user_factory, posts_factory)
+                        SimpleInstaUser(bot, user, user_factory, posts_factory)
                     ),
-                    user=users.user(id_),
+                    user=user,
                     pgsql=pgsql
                 ),
                 actions=PgActions(pgsql),
-                db_user=users.user(id_),
+                db_user=user,
             ),
         )
 
@@ -56,9 +58,9 @@ def main(pgsql, bot, user_id):
                         posts_factory
                     ),
                 ),
-                actions=PgActionsWithExpiration(pgsql, timedelta(days=5)),
+                actions=PgActionsWithExpiration(pgsql, timedelta(days=10)),
                 db_user=PgUsers(pgsql).user(user_id),
-                make_insta_user=user_factory
+                make_insta_user=user_to_insta_user
             ),
         )
     ).run()

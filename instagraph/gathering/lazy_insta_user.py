@@ -1,3 +1,5 @@
+from typing import Callable
+
 from abc_delegation import delegation_metaclass
 
 from instagraph.gathering.interfaces import InstaUser
@@ -47,7 +49,8 @@ class LazyInstaUser(InstaUser, metaclass=delegation_metaclass("_user")):
 
 
 class CachedLazyUser(InstaUser, metaclass=delegation_metaclass("_lazy_user")):
-    def __init__(self, insta_user: InstaUser, actions: Actions, db_user: User, make_insta_user):
+    def __init__(self, insta_user: InstaUser, actions: Actions, db_user: User,
+                 make_insta_user: Callable[[User], InstaUser]):
         self._lazy_user = LazyInstaUser(
             insta_user=insta_user,
             actions=actions,

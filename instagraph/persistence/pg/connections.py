@@ -41,7 +41,7 @@ class PgUserFollowing(Following):
         )
 
     def update_following(self, following):
-        new = {f.id() for f in following}
+        new = {int(f.id()) for f in following}
         old = {
             row.followed
             for row in self._pgsql.exec(
@@ -95,7 +95,7 @@ class PgUserFollowers(Followers):
         )
 
     def update_followers(self, followers: Iterable[User]):
-        new = {f.id() for f in followers}
+        new = {int(f.id()) for f in followers}
         old = {
             row.follower
             for row in self._pgsql.exec(
