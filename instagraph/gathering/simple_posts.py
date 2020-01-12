@@ -1,8 +1,9 @@
+from instagraph.gathering.interfaces import InstaUserPosts
 from instagraph.gathering.simple_post import SimpleInstaPost
 from instagraph.persistence.interfaces import User, Users, Locations
 
 
-class SimpleInstaUserPosts:
+class SimpleInstaUserPosts(InstaUserPosts):
     def __init__(self, bot, user: User, users: Users, locations: Locations):
         self._bot = bot
         self._user = user
@@ -15,7 +16,6 @@ class SimpleInstaUserPosts:
             yield SimpleInstaPost(
                 self._bot,
                 self._user.media().post(info["pk"]),
-                self._user,
                 self._users,
                 self._locations,
                 info,

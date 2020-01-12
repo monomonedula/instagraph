@@ -1,3 +1,5 @@
+from typing import Callable
+
 from abc_delegation import delegation_metaclass
 
 from instagraph.gathering.interfaces import InstaUser
@@ -5,7 +7,8 @@ from instagraph.persistence.interfaces import User, Actions
 
 
 class CachedInstaUser(InstaUser, metaclass=delegation_metaclass("_origin")):
-    def __init__(self, user: InstaUser, db_user: User, actions: Actions, make_user):
+    def __init__(self, user: InstaUser, db_user: User, actions: Actions,
+                 make_user: Callable[[User], InstaUser]):
         self._origin = user
         self._db_user = db_user
         self._actions = actions

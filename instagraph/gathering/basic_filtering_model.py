@@ -42,9 +42,6 @@ class BasicFilteringModel:
             tags.append("massfollower")
         return tags
 
-    def _text_check(self, text):
-        pass
-
     def _category_check(self, category):
         if category in self._commercial_categories or (
             "store" in category.lower()

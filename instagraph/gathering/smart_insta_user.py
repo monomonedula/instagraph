@@ -1,15 +1,19 @@
+from time import sleep
+
 from methodtools import lru_cache
 
 from instagraph.gathering.interfaces import InstaUser
 from instagraph.persistence.interfaces import User
+from instagraph.persistence.pg.pgsql import PgsqlBase
 
 
 class SmartInstaUser(InstaUser):
-    def __init__(self, user: User, insta_user: InstaUser, bot, model):
+    def __init__(self, user: User, insta_user: InstaUser, bot, model, pgsql: PgsqlBase):
         self._origin = insta_user
         self._bot = bot
         self._model = model
         self._user = user
+        self._pgsql = pgsql
 
     def id(self) -> int:
         return self._origin.id()
@@ -42,7 +46,6 @@ class SmartInstaUser(InstaUser):
     @lru_cache()
     def _info_check(self):
         info = self._info()
-        self._save_info(info)
         for tag in self._model.tags(info):
             self._user.info().add_tag(tag)
         is_target = self._model.is_target(info)
@@ -51,6 +54,23 @@ class SmartInstaUser(InstaUser):
         else:
             print(f"user {self.id()} is target")
         return is_target
+
+    def _db_info(self):
+        db_data = self._pgsql.exec(
+            "select * from users where id = %s", [self.id()]
+        )
+        if not db_data:
+            return None
+        db_data = db_data[0]
+        if db_data.account_type and\
+                db_data.nfollowers is not None and\
+                db_data.nfollows is not None:
+            return {
+                "category": db_data.account_type,
+                "follower_count": db_data.nfollowers,
+                "following_count": db_data.nfollows,
+            }
+        return None
 
     def _save_info(self, info):
         self._user.info().update(
@@ -65,4 +85,10 @@ class SmartInstaUser(InstaUser):
 
     @lru_cache()
     def _info(self):
-        return self._bot.get_user_info(self.id())
+        info = self._db_info()
+        if info:
+            return info
+        sleep(3)
+        info = self._bot.get_user_info(self.id())
+        self._save_info(info)
+        return info

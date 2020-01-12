@@ -1,16 +1,22 @@
+from typing import Callable
+
 from methodtools import lru_cache
 
-from instagraph.gathering.simple_posts import SimpleInstaUserPosts
-from instagraph.gathering.interfaces import InstaUser
-from instagraph.persistence.interfaces import User, Users, Locations
+from instagraph.gathering.interfaces import InstaUser, InstaUserPosts
+from instagraph.persistence.interfaces import User
 
 
 class SimpleInstaUser(InstaUser):
-    def __init__(self, bot, pg_user: User, pg_users: Users, pg_locations: Locations):
+    def __init__(
+        self, bot,
+        pg_user: User,
+        make_user: Callable[[int], InstaUser],
+        make_posts: Callable[[User], InstaUserPosts]
+    ):
         self._bot = bot
         self._pg_user = pg_user
-        self._pg_users = pg_users
-        self._pg_locations = pg_locations
+        self._make_user = make_user
+        self._make_posts = make_posts
 
     def id(self):
         return self._pg_user.id()
@@ -19,7 +25,7 @@ class SimpleInstaUser(InstaUser):
     def retrieve_followers(self):
         print("retrieve followers of %s" % self.id())
         return tuple(
-            SimpleInstaUser(self._bot, self._pg_users.user(i), self._pg_users, self._pg_locations)
+            self._make_user(i)
             for i in self._bot.get_user_followers(self.id(), nfollows=2000)
         )
 
@@ -27,7 +33,7 @@ class SimpleInstaUser(InstaUser):
     def retrieve_following(self):
         print("retrieve following of %s" % self.id())
         return tuple(
-            SimpleInstaUser(self._bot, self._pg_users.user(i), self._pg_users, self._pg_locations)
+            self._make_user(i)
             for i in self._bot.get_user_following(self.id(), nfollows=1500)
         )
 
@@ -54,7 +60,7 @@ class SimpleInstaUser(InstaUser):
 
     def save_posts_info(self):
         print(f"saving posts info of {self.id()}")
-        for post in SimpleInstaUserPosts(self._bot, self._pg_user, self._pg_users, self._pg_locations).posts():
+        for post in self._make_posts(self._pg_user).posts():
             post.update_caption()
             post.update_location()
             post.update_taken_at()

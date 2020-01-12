@@ -1,13 +1,12 @@
 from datetime import datetime
 
 from instagraph.gathering.interfaces import InstaPost
-from instagraph.persistence.interfaces import Post, User, Users, Locations
+from instagraph.persistence.interfaces import Post, Users, Locations
 
 
 class SimpleInstaPost(InstaPost):
-    def __init__(self, bot, post: Post, user: User, users: Users, locations: Locations, info, media_id):
+    def __init__(self, bot, post: Post, users: Users, locations: Locations, info, media_id):
         self._bot = bot
-        self._user = user
         self._users = users
         self._locations = locations
         self._post = post
